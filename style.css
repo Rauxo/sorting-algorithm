@@ -1,28 +1,100 @@
-body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: #f7f7f7;
-}
-
-input, button, select {
-  padding: 8px;
-  margin: 5px;
-}
-
-#steps {
-  margin-top: 20px;
-  text-align: left;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.step {
-  margin: 5px 0;
-  font-size: 18px;
-}
-
-.changed {
-  color: red;
-  font-weight: bold;
-}
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    
+    .step-enter {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    .step-enter-active {
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 300ms ease-out, transform 300ms ease-out;
+    }
+    
+    .array-box {
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.25rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .box-normal {
+      background-color: #3b82f6;
+      color: white;
+    }
+    
+    .box-compare {
+      background-color: #f59e0b;
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .box-swap {
+      background-color: #ef4444;
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .box-sorted {
+      background-color: #10b981;
+      color: white;
+    }
+    
+    .box-pivot {
+      background-color: #8b5cf6;
+      color: white;
+      transform: scale(1.1);
+    }
+    
+    .card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05), 0 5px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(to right, #3b82f6, #1d4ed8);
+      box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+    }
+    
+    .btn-primary:hover {
+      background: linear-gradient(to right, #1d4ed8, #1e40af);
+      box-shadow: 0 6px 8px rgba(59, 130, 246, 0.35);
+    }
+    
+    .btn-success {
+      background: linear-gradient(to right, #10b981, #059669);
+      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.25);
+    }
+    
+    .btn-success:hover {
+      background: linear-gradient(to right, #059669, #047857);
+      box-shadow: 0 6px 8px rgba(16, 185, 129, 0.35);
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(to right, #6b7280, #4b5563);
+      box-shadow: 0 4px 6px rgba(107, 114, 128, 0.25);
+    }
+    
+    .btn-secondary:hover {
+      background: linear-gradient(to right, #4b5563, #374151);
+      box-shadow: 0 6px 8px rgba(107, 114, 128, 0.35);
+    }
+    
+    .step-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-left: 4px solid #3b82f6;
+    }

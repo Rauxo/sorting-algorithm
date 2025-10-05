@@ -2,29 +2,195 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sorting Visualizer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorting Algorithm Visualizer</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-  <h1>Sorting Visualizer</h1>
+<body class="gradient-bg min-h-screen flex flex-col items-center justify-center p-4">
+  <div class="card rounded-2xl p-6 max-w-4xl w-full mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-secondary mb-2">Sorting Algorithm Visualizer</h1>
+        <p class="text-gray-600">Watch how sorting algorithms rearrange arrays step by step</p>
+      </div>
+      <div class="mt-4 md:mt-0">
+        <button id="infoBtn" class="btn-secondary text-white px-4 py-2 rounded-lg transition duration-300">
+          <i class="fas fa-info-circle mr-2"></i>Algorithm Info
+        </button>
+      </div>
+    </div>
 
-  <input type="text" id="arrayInput" placeholder="Enter numbers separated by commas">
-  <button onclick="setArray()">OK</button>
+    <div class="bg-white rounded-xl p-5 shadow-md mb-6">
+      <h2 class="text-xl font-semibold text-secondary mb-4">
+        <i class="fas fa-list-ol mr-2"></i>Array Visualization
+      </h2>
+      
+      <div id="visualization" class="bg-gray-50 p-4 rounded-lg flex justify-center items-center space-x-3 min-h-32">
+        <p class="text-gray-500 text-lg">Enter numbers and click "Set Array" to start visualization</p>
+      </div>
+      
+      <div class="mt-4">
+        <h3 class="text-lg font-medium text-secondary mb-3">Legend</h3>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+          <div class="flex items-center">
+            <div class="w-4 h-4 bg-blue-500 rounded mr-2"></div>
+            <span class="text-sm">Normal</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-4 h-4 bg-yellow-500 rounded mr-2"></div>
+            <span class="text-sm">Comparing</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-4 h-4 bg-red-500 rounded mr-2"></div>
+            <span class="text-sm">Swapping</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-4 h-4 bg-green-500 rounded mr-2"></div>
+            <span class="text-sm">Sorted</span>
+          </div>
+          <div class="flex items-center">
+            <div class="w-4 h-4 bg-purple-500 rounded mr-2"></div>
+            <span class="text-sm">Pivot</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div id="algoSection" style="display:none;">
-    <h3>Select Algorithm:</h3>
-    <select id="algoSelect">
-      <option value="bubble">Bubble Sort</option>
-      <option value="selection">Selection Sort</option>
-      <option value="insertion">Insertion Sort</option>
-      <option value="quick">Quick Sort</option>
-      <option value="merge">Merge Sort</option>
-    </select>
-    <button onclick="startSort()">Sort</button>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Left Column: Controls -->
+      <div class="bg-white rounded-xl p-5 shadow-md">
+        <h2 class="text-xl font-semibold text-secondary mb-4">Input & Controls</h2>
+        
+        <div class="mb-6">
+          <label for="arrayInput" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fas fa-list-ol mr-2"></i>Enter Numbers (comma separated)
+          </label>
+          <input
+            type="text"
+            id="arrayInput"
+            placeholder="e.g., 5, 2, 8, 1, 9, 3, 7"
+            class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+          >
+        </div>
+
+        <div class="flex gap-4 mb-6">
+          <button
+            onclick="setArray()"
+            class="btn-primary text-white px-6 py-3 rounded-lg transition duration-300 flex-1"
+          >
+            <i class="fas fa-play mr-2"></i>Set Array
+          </button>
+          <button
+            onclick="generateRandomArray()"
+            class="btn-secondary text-white px-4 py-3 rounded-lg transition duration-300"
+          >
+            <i class="fas fa-random mr-2"></i>Random
+          </button>
+        </div>
+
+        <div id="algoSection" class="hidden space-y-4">
+          <div>
+            <label for="algoSelect" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-sort mr-2"></i>Select Algorithm
+            </label>
+            <select
+              id="algoSelect"
+              class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+            >
+              <option value="bubble">Bubble Sort</option>
+              <option value="selection">Selection Sort</option>
+              <option value="insertion">Insertion Sort</option>
+              <option value="quick">Quick Sort</option>
+              <option value="merge">Merge Sort</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="speedSlider" class="block text-sm font-medium text-gray-700 mb-2">
+              <i class="fas fa-tachometer-alt mr-2"></i>Animation Speed
+            </label>
+            <input
+              type="range"
+              id="speedSlider"
+              min="50"
+              max="1000"
+              value="300"
+              class="w-full"
+            >
+            <div class="flex justify-between text-sm text-gray-600 mt-1">
+              <span>Fast</span>
+              <span id="speedValue">300 ms</span>
+              <span>Slow</span>
+            </div>
+          </div>
+          
+          <div class="flex gap-4">
+            <button
+              onclick="startSort()"
+              class="btn-success text-white px-6 py-3 rounded-lg transition duration-300 flex-1"
+            >
+              <i class="fas fa-sort-amount-down mr-2"></i>Start Sorting
+            </button>
+            <button
+              onclick="resetVisualization()"
+              class="btn-secondary text-white px-4 py-3 rounded-lg transition duration-300"
+            >
+              <i class="fas fa-redo mr-2"></i>Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Steps -->
+      <div class="bg-white rounded-xl p-5 shadow-md">
+        <h2 class="text-xl font-semibold text-secondary mb-4">
+          <i class="fas fa-list-ol mr-2"></i>Algorithm Steps
+        </h2>
+        <div id="steps" class="bg-gray-50 p-4 rounded-lg max-h-80 overflow-y-auto space-y-3"></div>
+      </div>
+    </div>
   </div>
 
-  <h3>Steps:</h3>
-  <div id="steps"></div>
+  <!-- Algorithm Info Modal -->
+  <div id="infoModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+    <div class="bg-white rounded-xl p-6 max-w-2xl w-full mx-4">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-secondary">Sorting Algorithms</h2>
+        <button id="closeModal" class="text-gray-500 hover:text-gray-700">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <h3 class="text-lg font-semibold text-primary">Bubble Sort</h3>
+          <p class="text-gray-600">Repeatedly steps through the list, compares adjacent elements and swaps them if they are in the wrong order.</p>
+          <p class="text-sm text-gray-500 mt-1">Time Complexity: O(n²)</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-primary">Selection Sort</h3>
+          <p class="text-gray-600">Divides the input list into two parts: a sorted sublist and an unsorted sublist. It repeatedly finds the minimum element from the unsorted part and puts it at the beginning.</p>
+          <p class="text-sm text-gray-500 mt-1">Time Complexity: O(n²)</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-primary">Insertion Sort</h3>
+          <p class="text-gray-600">Builds the final sorted array one item at a time by inserting each element into its correct position.</p>
+          <p class="text-sm text-gray-500 mt-1">Time Complexity: O(n²)</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-primary">Quick Sort</h3>
+          <p class="text-gray-600">A divide and conquer algorithm that picks an element as pivot and partitions the array around the pivot.</p>
+          <p class="text-sm text-gray-500 mt-1">Time Complexity: O(n log n) average, O(n²) worst case</p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-primary">Merge Sort</h3>
+          <p class="text-gray-600">A divide and conquer algorithm that divides the input array into two halves, sorts them, and then merges the sorted halves.</p>
+          <p class="text-sm text-gray-500 mt-1">Time Complexity: O(n log n)</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
