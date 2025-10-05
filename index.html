@@ -3,170 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <title>Sorting Visualizer</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #f7f7f7;
-    }
-    input, button {
-      padding: 8px;
-      margin: 5px;
-    }
-    .buttons { margin: 20px; }
-    .array-container {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-    }
-    .bar {
-      width: 30px;
-      margin: 2px;
-      background: steelblue;
-      text-align: center;
-      color: white;
-    }
-    .highlight {
-      background: tomato !important;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <h1>Sorting Visualizer</h1>
+
   <input type="text" id="arrayInput" placeholder="Enter numbers separated by commas">
   <button onclick="setArray()">OK</button>
 
-  <div id="algoButtons" class="buttons" style="display:none;">
-    <button onclick="startSort('bubble')">Bubble Sort</button>
-    <button onclick="startSort('selection')">Selection Sort</button>
-    <button onclick="startSort('insertion')">Insertion Sort</button>
-    <button onclick="startSort('quick')">Quick Sort</button>
-    <button onclick="startSort('merge')">Merge Sort</button>
+  <div id="algoSection" style="display:none;">
+    <h3>Select Algorithm:</h3>
+    <select id="algoSelect">
+      <option value="bubble">Bubble Sort</option>
+      <option value="selection">Selection Sort</option>
+      <option value="insertion">Insertion Sort</option>
+      <option value="quick">Quick Sort</option>
+      <option value="merge">Merge Sort</option>
+    </select>
+    <button onclick="startSort()">Sort</button>
   </div>
 
-  <div id="arrayContainer" class="array-container"></div>
+  <h3>Steps:</h3>
+  <div id="steps"></div>
 
-  <script>
-    let arr = [];
-    let container = document.getElementById("arrayContainer");
-
-    function setArray() {
-      let input = document.getElementById("arrayInput").value;
-      arr = input.split(",").map(Number);
-      document.getElementById("algoButtons").style.display = "block";
-      drawArray(arr);
-    }
-
-    function drawArray(array, highlight=[]) {
-      container.innerHTML = "";
-      array.forEach((val, idx) => {
-        let bar = document.createElement("div");
-        bar.classList.add("bar");
-        if (highlight.includes(idx)) bar.classList.add("highlight");
-        bar.style.height = (val * 5 + 20) + "px";
-        bar.innerText = val;
-        container.appendChild(bar);
-      });
-    }
-
-    async function startSort(type) {
-      let copy = [...arr];
-      if (type === "bubble") await bubbleSort(copy);
-      if (type === "selection") await selectionSort(copy);
-      if (type === "insertion") await insertionSort(copy);
-      if (type === "quick") await quickSort(copy, 0, copy.length-1);
-      if (type === "merge") await mergeSort(copy, 0, copy.length-1);
-      drawArray(copy);
-      alert("Sorting Finished: " + copy.join(", "));
-    }
-
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // Bubble Sort
-    async function bubbleSort(a) {
-      for (let i=0;i<a.length-1;i++) {
-        for (let j=0;j<a.length-i-1;j++) {
-          drawArray(a, [j,j+1]);
-          await sleep(500);
-          if (a[j] > a[j+1]) {
-            [a[j],a[j+1]] = [a[j+1],a[j]];
-          }
-        }
-      }
-    }
-
-    // Selection Sort
-    async function selectionSort(a) {
-      for (let i=0;i<a.length;i++) {
-        let min=i;
-        for (let j=i+1;j<a.length;j++) {
-          drawArray(a, [i,j]);
-          await sleep(500);
-          if (a[j]<a[min]) min=j;
-        }
-        [a[i],a[min]]=[a[min],a[i]];
-      }
-    }
-
-    // Insertion Sort
-    async function insertionSort(a) {
-      for (let i=1;i<a.length;i++) {
-        let key=a[i], j=i-1;
-        while(j>=0 && a[j]>key){
-          drawArray(a,[j,j+1]);
-          await sleep(500);
-          a[j+1]=a[j];
-          j--;
-        }
-        a[j+1]=key;
-      }
-    }
-
-    // Quick Sort
-    async function quickSort(a,low,high){
-      if(low<high){
-        let pi=await partition(a,low,high);
-        await quickSort(a,low,pi-1);
-        await quickSort(a,pi+1,high);
-      }
-    }
-    async function partition(a,low,high){
-      let pivot=a[high], i=low-1;
-      for(let j=low;j<high;j++){
-        drawArray(a,[j,high]);
-        await sleep(500);
-        if(a[j]<pivot){
-          i++;
-          [a[i],a[j]]=[a[j],a[i]];
-        }
-      }
-      [a[i+1],a[high]]=[a[high],a[i+1]];
-      return i+1;
-    }
-
-    // Merge Sort
-    async function mergeSort(a,l,r){
-      if(l>=r) return;
-      let m=Math.floor((l+r)/2);
-      await mergeSort(a,l,m);
-      await mergeSort(a,m+1,r);
-      await merge(a,l,m,r);
-    }
-    async function merge(a,l,m,r){
-      let n1=m-l+1, n2=r-m;
-      let L=a.slice(l,m+1), R=a.slice(m+1,r+1);
-      let i=0,j=0,k=l;
-      while(i<n1 && j<n2){
-        drawArray(a,[k]);
-        await sleep(500);
-        if(L[i]<=R[j]) a[k++]=L[i++];
-        else a[k++]=R[j++];
-      }
-      while(i<n1){a[k++]=L[i++];}
-      while(j<n2){a[k++]=R[j++];}
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
