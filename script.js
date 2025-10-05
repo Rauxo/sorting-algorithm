@@ -16,8 +16,7 @@ tailwind.config = {
   },
 };
 
-//Start Logics
-
+// Global variables
 let arr = [];
 let animationSpeed = 300;
 let isSorting = false;
@@ -75,14 +74,19 @@ function generateRandomArray() {
   visualizeArray(arr);
 }
 
-function visualizeArray(array, highlights = [], pivotIndex = -1) {
+function visualizeArray(array, highlights = [], pivotIndex = -1, arrow = null) {
   const container = document.getElementById("visualization");
   container.innerHTML = "";
+
+  // Clear any existing arrows
+  const existingArrows = document.querySelectorAll('.arrow, .arrow-label');
+  existingArrows.forEach(el => el.remove());
 
   array.forEach((value, index) => {
     const box = document.createElement("div");
     box.className = "array-box box-normal";
     box.textContent = value;
+    box.id = `box-${index}`;
 
     // Apply highlight classes if needed
     if (highlights.includes(index)) {
@@ -100,6 +104,53 @@ function visualizeArray(array, highlights = [], pivotIndex = -1) {
 
     container.appendChild(box);
   });
+
+  // Draw arrow if specified
+  if (arrow) {
+    drawArrow(arrow.from, arrow.to, arrow.label);
+  }
+}
+
+function drawArrow(fromIndex, toIndex, label) {
+  const fromBox = document.getElementById(`box-${fromIndex}`);
+  const toBox = document.getElementById(`box-${toIndex}`);
+  const container = document.getElementById("visualization");
+  
+  if (!fromBox || !toBox) return;
+
+  const fromRect = fromBox.getBoundingClientRect();
+  const toRect = toBox.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+
+  const fromCenterX = fromRect.left + fromRect.width / 2 - containerRect.left;
+  const fromCenterY = fromRect.top + fromRect.height / 2 - containerRect.top;
+  const toCenterX = toRect.left + toRect.width / 2 - containerRect.left;
+  const toCenterY = toRect.top + toRect.height / 2 - containerRect.top;
+
+  // Calculate distance and angle
+  const distance = Math.sqrt(Math.pow(toCenterX - fromCenterX, 2) + Math.pow(toCenterY - fromCenterY, 2));
+  const angle = Math.atan2(toCenterY - fromCenterY, toCenterX - fromCenterX) * 180 / Math.PI;
+
+  // Create arrow
+  const arrow = document.createElement("div");
+  arrow.className = "arrow arrow-animate";
+  arrow.style.width = `${distance}px`;
+  arrow.style.left = `${fromCenterX}px`;
+  arrow.style.top = `${fromCenterY}px`;
+  arrow.style.transform = `rotate(${angle}deg)`;
+  arrow.style.transformOrigin = "left center";
+  arrow.style.setProperty('--arrow-width', `${distance}px`);
+  
+  container.appendChild(arrow);
+
+  // Create label
+  const labelEl = document.createElement("div");
+  labelEl.className = "arrow-label";
+  labelEl.textContent = label;
+  labelEl.style.left = `${(fromCenterX + toCenterX) / 2 - 20}px`;
+  labelEl.style.top = `${(fromCenterY + toCenterY) / 2 - 20}px`;
+  
+  container.appendChild(labelEl);
 }
 
 function showStep(text) {
@@ -189,6 +240,8 @@ document.getElementById("speedSlider").addEventListener("input", function () {
 // Modal functionality
 document.getElementById("infoBtn").addEventListener("click", function () {
   document.getElementById("infoModal").classList.remove("hidden");
+  // Scroll to top when modal opens
+  document.querySelector('.rectangle-modal').scrollTop = 0;
 });
 
 document.getElementById("closeModal").addEventListener("click", function () {
@@ -202,6 +255,12 @@ document.getElementById("infoModal").addEventListener("click", function (e) {
   }
 });
 
+// Close modal with Escape key
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    document.getElementById("infoModal").classList.add("hidden");
+  }
+});
 // Sorting Algorithms
 
 // Bubble Sort
@@ -209,7 +268,7 @@ async function bubbleSort(a) {
   let step = 1;
   for (let i = 0; i < a.length - 1; i++) {
     for (let j = 0; j < a.length - i - 1; j++) {
-      visualizeArray(a, [j, j + 1]);
+      visualizeArray(a, [j, j + 1], -1, { from: j, to: j + 1, label: "Compare" });
       await sleep(animationSpeed);
 
       if (a[j] > a[j + 1]) {
@@ -217,7 +276,7 @@ async function bubbleSort(a) {
         showStep(
           `Swapped ${a[j + 1]} and ${a[j]} → ${formatArray(a, [j, j + 1])}`
         );
-        visualizeArray(a, [j, j + 1]);
+        visualizeArray(a, [j, j + 1], -1, { from: j, to: j + 1, label: "Swap" });
         await sleep(animationSpeed);
       } else {
         showStep(`Compared ${a[j]} and ${a[j + 1]} - no swap needed`);
@@ -231,16 +290,16 @@ async function selectionSort(a) {
   let step = 1;
   for (let i = 0; i < a.length; i++) {
     let min = i;
-    visualizeArray(a, [i, min]);
+    visualizeArray(a, [i, min], -1, { from: i, to: min, label: "Current min" });
     await sleep(animationSpeed);
 
     for (let j = i + 1; j < a.length; j++) {
-      visualizeArray(a, [min, j]);
+      visualizeArray(a, [min, j], -1, { from: min, to: j, label: "Compare" });
       await sleep(animationSpeed);
 
       if (a[j] < a[min]) {
         min = j;
-        visualizeArray(a, [i, min]);
+        visualizeArray(a, [i, min], -1, { from: i, to: min, label: "New min" });
         await sleep(animationSpeed);
       }
     }
@@ -248,7 +307,7 @@ async function selectionSort(a) {
     if (min !== i) {
       [a[i], a[min]] = [a[min], a[i]];
       showStep(`Swapped ${a[min]} and ${a[i]} → ${formatArray(a, [i, min])}`);
-      visualizeArray(a, [i, min]);
+      visualizeArray(a, [i, min], -1, { from: i, to: min, label: "Swap" });
       await sleep(animationSpeed);
     } else {
       showStep(`Element ${a[i]} is already in correct position`);
@@ -263,13 +322,13 @@ async function insertionSort(a) {
     let key = a[i];
     let j = i - 1;
 
-    visualizeArray(a, [i, j]);
+    visualizeArray(a, [i, j], -1, { from: i, to: j, label: "Compare" });
     await sleep(animationSpeed);
 
     while (j >= 0 && a[j] > key) {
       a[j + 1] = a[j];
       j--;
-      visualizeArray(a, [i, j + 1]);
+      visualizeArray(a, [i, j + 1], -1, { from: i, to: j + 1, label: "Shift" });
       await sleep(animationSpeed);
     }
 
@@ -277,7 +336,7 @@ async function insertionSort(a) {
     showStep(
       `Inserted ${key} at position ${j + 1} → ${formatArray(a, [j + 1, i])}`
     );
-    visualizeArray(a, [j + 1]);
+    visualizeArray(a, [j + 1], -1, { from: i, to: j + 1, label: "Insert" });
     await sleep(animationSpeed);
   }
 }
@@ -295,18 +354,18 @@ async function partition(a, low, high) {
   let pivot = a[high];
   let i = low - 1;
 
-  visualizeArray(a, [], high);
+  visualizeArray(a, [], high, { from: high, to: high, label: "Pivot" });
   await sleep(animationSpeed);
 
   for (let j = low; j < high; j++) {
-    visualizeArray(a, [j, high]);
+    visualizeArray(a, [j, high], high, { from: j, to: high, label: "Compare" });
     await sleep(animationSpeed);
 
     if (a[j] < pivot) {
       i++;
       [a[i], a[j]] = [a[j], a[i]];
       showStep(`Swapped ${a[j]} and ${a[i]} → ${formatArray(a, [i, j])}`);
-      visualizeArray(a, [i, j]);
+      visualizeArray(a, [i, j], high, { from: i, to: j, label: "Swap" });
       await sleep(animationSpeed);
     }
   }
@@ -318,7 +377,7 @@ async function partition(a, low, high) {
       high,
     ])}`
   );
-  visualizeArray(a, [i + 1, high]);
+  visualizeArray(a, [i + 1, high], -1, { from: high, to: i + 1, label: "Place pivot" });
   await sleep(animationSpeed);
 
   return i + 1;
@@ -350,7 +409,7 @@ async function merge(a, l, m, r) {
     }
 
     showStep(`Merging: ${formatArray(a, [k])}`);
-    visualizeArray(a, [k]);
+    visualizeArray(a, [k], -1, { from: k, to: k, label: "Merge" });
     await sleep(animationSpeed);
     k++;
   }
@@ -358,7 +417,7 @@ async function merge(a, l, m, r) {
   while (i < n1) {
     a[k] = L[i++];
     showStep(`Merging: ${formatArray(a, [k])}`);
-    visualizeArray(a, [k]);
+    visualizeArray(a, [k], -1, { from: k, to: k, label: "Merge" });
     await sleep(animationSpeed);
     k++;
   }
@@ -366,7 +425,7 @@ async function merge(a, l, m, r) {
   while (j < n2) {
     a[k] = R[j++];
     showStep(`Merging: ${formatArray(a, [k])}`);
-    visualizeArray(a, [k]);
+    visualizeArray(a, [k], -1, { from: k, to: k, label: "Merge" });
     await sleep(animationSpeed);
     k++;
   }
